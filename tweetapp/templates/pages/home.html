@@ -1,3 +1,53 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Welcome to tweet me</h1>
+<div id="tweets">
+  Loading...
+</div>
+<script>
+  const tweetsElement = document.getElementById("tweets");
+  tweetsElement.innerHTML = "Loading...";
+  const xhr = new XMLHttpRequest();
+  const method = "GET";
+  const url = "/tweets";
+  const responseType = "json";
+  function handleDidLike(tweet_id, currentCount) {
+    console.log(tweet_id, currentCount);
+  }
+  function LikeBtn(tweet) {
+    return (
+      "<button class='btn btn-primary m-2' onclick=handleDidLike(" +
+      tweet.id +
+      "," +
+      tweet.likes +
+      ")>" +
+      tweet.likes +
+      " Likes</button>"
+    );
+  }
+  function formatTweetElement(tweet) {
+    let formatedTweet =
+      "<div class='mb-4' id='tweet-" +
+      tweet.id +
+      "'><p>" +
+      tweet.content +
+      "</p><div class='btn-group'>" +
+      LikeBtn(tweet) +
+      "</div></div>";
+    return formatedTweet;
+  }
+  xhr.responseType = responseType;
+  xhr.open(method, url);
+  xhr.onload = () => {
+    let serverResponse = xhr.response;
+    let tweetsUI = "";
+    let listedItems = serverResponse.response;
+    listedItems.forEach((element) => {
+      let tweet = formatTweetElement(element);
+      tweetsUI += tweet;
+    });
+    tweetsElement.innerHTML = tweetsUI;
+  };
+
+  xhr.send();
+</script>
 {% endblock content %}
