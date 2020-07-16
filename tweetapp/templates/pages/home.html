@@ -15,11 +15,13 @@
       method="POST"
     >
       {% csrf_token %}
+      <div class="d-none alert alert-danger" id="create-tweet-form-error"></div>
       <input type="hidden" value="/" name="next" />
       <textarea
         class="form-control"
         name="content"
         placeholder="Your tweet"
+        required
       ></textarea>
       <button class="btn btn-primary" type="submit">Tweet</button>
     </form>
@@ -30,6 +32,18 @@
   Loading...
 </div>
 <script>
+  const handleTweetFormError = (msg, display) => {
+    console.log("Function called");
+    let myErrorDiv = document.getElementById("create-tweet-form-error");
+    if (display === true) {
+      // show error
+      myErrorDiv.setAttribute("class", "d-block alert alert-danger");
+      myErrorDiv.innerText = msg;
+    } else {
+      myErrorDiv.setAttribute("class", "d-none alert alert-danger ");
+    }
+  };
+  const twElement = document.getElementById("tweets");
   const handleTweetCreateFormDidSubmit = (event) => {
     event.preventDefault();
     const myForm = event.target;
@@ -37,19 +51,49 @@
     const url = myForm.getAttribute("action");
     const method = myForm.getAttribute("method");
     const xhr = new XMLHttpRequest();
+    const responseType = "json";
+    xhr.responseType = responseType;
     xhr.open(method, url);
     xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest");
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
     xhr.onload = function () {
-      const serverResponse = xhr.response;
+      if (xhr.status === 201) {
+        const newTweet = xhr.response;
+        console.log(newTweet);
+
+        const newTweetElement = formatTweetElement(newTweet);
+        const ogHtml = twElement.innerHTML;
+        twElement.innerHTML = newTweetElement + ogHtml;
+        myForm.reset();
+      } else if (xhr.status === 400) {
+        const errorJson = xhr.response;
+        let contentError = errorJson.content;
+        console.log(xhr.response);
+        let contentErrorMessage;
+        if (contentError) {
+          contentErrorMessage = contentError[0];
+
+          if (contentErrorMessage) {
+            handleTweetFormError(contentErrorMessage, true);
+          }
+        } else {
+          alert("Error occured please try again");
+        }
+      } else if (xhr.status === 500) {
+        alert("There was a server error, please try again");
+      }
+
+      loadTweets(twElement);
+    };
+    xhr.onerror = function () {
+      alert("An error uccured");
     };
     xhr.send(myFormData);
   };
   const tweetCreateFormEl = document.getElementById("tweet-create-form");
   tweetCreateFormEl.addEventListener("submit", handleTweetCreateFormDidSubmit);
 
-  const twElement = document.getElementById("tweets");
   const loadTweets = (tweetsElement) => {
     tweetsElement.innerHTML = "Loading...";
     const xhr = new XMLHttpRequest();
