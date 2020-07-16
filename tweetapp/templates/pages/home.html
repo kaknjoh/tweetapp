@@ -82,7 +82,7 @@
         }
       } else if (xhr.status === 500) {
         alert("There was a server error, please try again");
-      } else if (xhr.status === 401) {
+      } else if (xhr.status === 403) {
         alert("Please login first");
         window.location.href = "/login";
       }
@@ -108,7 +108,7 @@
     xhr.onload = () => {
       let serverResponse = xhr.response;
       let tweetsUI = "";
-      let listedItems = serverResponse.response;
+      let listedItems = serverResponse;
       listedItems.forEach((element) => {
         let tweet = formatTweetElement(element);
         tweetsUI += tweet;
