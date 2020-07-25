@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { loadTweets } from "../lookup";
+import { apiTweetCreate, apiTweetList } from "./lookup";
 
 export function TweetsComponent(props) {
+  const [newTweets, setNewTweets] = useState([]);
   const textAreaRef = React.createRef();
+  const handleBackendUpdate = (response, status) => {
+    let tempNewTweet = [...newTweets];
+    // backend api response handler
+    if (status === 201) {
+      tempNewTweet.unshift(response);
+      setNewTweets(tempNewTweet);
+    } else {
+      console.log(response);
+      alert("An error occured please try again");
+    }
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log(event);
     console.log(textAreaRef.current.value);
     const newValue = textAreaRef.current.value;
-    console.log(newValue);
+    // Backend api request
+    apiTweetCreate(newValue, handleBackendUpdate);
+
     textAreaRef.current.value = "";
   };
   return (
@@ -25,7 +39,7 @@ export function TweetsComponent(props) {
           </button>
         </form>
       </div>
-      {<TweetsList />}
+      {<TweetsList newTweets={newTweets} />}
     </div>
   );
 }
@@ -86,18 +100,31 @@ export function Tweet(props) {
 }
 
 export function TweetsList(props) {
+  const [tweetsInit, setTweetsInit] = useState([]);
   const [tweets, setTweets] = useState([]);
+  const [tweetsDidSet, setTweetsDidSet] = useState(false);
+  console.log(props.newTweets);
+
   useEffect(() => {
-    const myCallBack = (response, status) => {
-      if (status === 200) {
-        setTweets(response);
-      } else {
-        alert("There was an error");
-      }
-    };
-    console.log("Doslo");
-    loadTweets(myCallBack);
-  }, []);
+    const final = [...props.newTweets].concat(tweetsInit);
+    if (final.length !== tweets.length) {
+      setTweets(final);
+    }
+  }, [tweetsInit, tweets, props.newTweets]);
+  useEffect(() => {
+    if (tweetsDidSet === false) {
+      const handleTweetListLookup = (response, status) => {
+        if (status === 200) {
+          setTweetsInit(response);
+          setTweetsDidSet(true);
+        } else {
+          alert("There was an error");
+        }
+      };
+      console.log("Doslo");
+      apiTweetList(handleTweetListLookup);
+    }
+  }, [tweetsInit, tweetsDidSet, setTweetsDidSet]);
   return tweets.map((tweet, index) => {
     return (
       <Tweet
