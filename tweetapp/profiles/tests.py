@@ -25,6 +25,7 @@ class ProfileTestCase(TestCase):
         first.profile.followers.add(second)  # added a followe
         # from a user, check is the other user being followed
         qs = second.following.filter(user=first)
-        self.assertTrue(qs.exists())
+        # check new user has not following anyone
         first_user_following_no_one = first.following.all()
+        self.assertTrue(qs.exists())
         self.assertFalse(first_user_following_no_one.exists())

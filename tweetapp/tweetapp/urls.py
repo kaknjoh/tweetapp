@@ -31,7 +31,9 @@ urlpatterns = [
     path('<int:tweet_id>', tweets_detail_view),
     # path('api/tweets/action', tweet_action_view),
     # path('api/tweets/<int:tweet_id>/delete', tweet_delete_view),
-    path('api/tweets/', include('tweets.api.urls'))
+    path('api/tweets/', include('tweets.api.urls')),
+    re_path(r'api/profiles?/', include('profiles.api.urls')),
+
 ]
 
 
