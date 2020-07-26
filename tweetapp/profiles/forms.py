@@ -13,13 +13,13 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email_address']
+        fields = ['first_name', 'last_name', 'email']
 
 
 class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
-    email_address = forms.CharField(required=False)
+    email = forms.CharField(required=False)
 
     class Meta:
         model = Profile
