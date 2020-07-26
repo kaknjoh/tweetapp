@@ -14,9 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
 from tweets.views import (tweets_list_view,
-                          tweets_detail_view, tweets_profile_view)
+                          tweets_detail_view)
 from django.conf import settings
 from accounts.views import (login_view, logout_view, registration_view)
 from django.conf.urls.static import static
@@ -27,7 +27,7 @@ urlpatterns = [
     path('login/', login_view),
     path('logout/', logout_view),
     path('register/', registration_view),
-    path('profile/<str:username>', tweets_profile_view),
+    re_path(r'profiles?/', include('profiles.urls')),
     path('<int:tweet_id>', tweets_detail_view),
     # path('api/tweets/action', tweet_action_view),
     # path('api/tweets/<int:tweet_id>/delete', tweet_delete_view),
